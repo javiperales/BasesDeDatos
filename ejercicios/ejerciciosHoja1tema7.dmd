@@ -1,0 +1,9 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<OSDM_Design class="oracle.dbtools.crest.model.design.Design" name="ejerciciosHoja1tema7" id="4B27D14E-FB96-181D-9B56-0C981B63FBBB" version="3.5">
+<createdBy>javip</createdBy>
+<createdTime>2018-01-08 14:56:09 UTC</createdTime>
+<generatorID>Generado por el Usuario</generatorID>
+<ownerDesignName>ejerciciosHoja1tema7</ownerDesignName>
+<capitalNames>false</capitalNames>
+<designId>4B27D14E-FB96-181D-9B56-0C981B63FBBB</designId>
+</OSDM_Design>

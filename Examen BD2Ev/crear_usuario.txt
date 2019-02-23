@@ -1,0 +1,23 @@
+//EN EL CMD ENTRAMOS A SQLPLUS CON NUESTRO USUARIO
+//SYSTEM CONTRASEÑA EXPRESS, Y VAMOS PONIENDO ESTO 
+//CON EL NOMBRE DE USUARIO Y LA CONTRASEÑA DEL 
+//USUARIO A CREAR.
+
+CREATE USER unidad12 IDENTIFIED BY unidad12
+DEFAULT TABLESPACE USERS 
+TEMPORARY TABLESPACE TEMP;
+
+grant connect to unidad12;
+grant resource to unidad12;
+grant create user to unidad12;
+grant create session to unidad12;
+
+grant CREATE MATERIALIZED VIEW to unidad12;
+grant CREATE VIEW to unidad12;
+
+grant CREATE PUBLIC SYNONYM to unidad12;
+grant CREATE ROLE to unidad12;
+
+
+
+

@@ -1,0 +1,78 @@
+select c.nombre, p.nombre from clientes c , pedidos pe, detalles_pedidos dp, productos p
+where c.id_cliente=pe.id_cliente  and pe.numero_pedido=dp.numero_pedido and dp.numero_producto=p.numero_producto and p.nombre='StaDry Cycling culote' and c.nombre='Julia'
+
+select e.id_empleado, e.nombre ,sum(dp.precio*dp.cantidad) from empleados e, pedidos p, detalles_pedidos dp, productos pr, categorias c
+  where e.id_empleado=p.id_empleado and dp.numero_pedido=p.numero_pedido and pr.numero_producto=dp.numero_producto 
+  and pr.id_categoria=c.id_categoria and (pr.nombre='StaDry Cycling culote' or( c.descripcion='Accesorios'))
+  
+  group by e.id_empleado, e.nombre 
+
+/*select id_empleado , nombre , sum(precio*cantidad) as total from empleado natural join pedidos natural join detalles_pedidos natural join productos natural join categorias
+where productos.nombre ='StaDry Cycling culote' or categorias.descripcion='Accesorios'
+group by id_empleado, nombre*/
+select * from (
+select  distinct e.id_empleado, e.nombre , e.apellidos, count(*) from empleados e, pedidos p, clientes c
+where e.id_empleado=p.id_empleado and p.id_cliente=c.id_cliente
+ group by e.id_empleado, e.nombre, e.apellidos
+ order by count(*) asc)
+ where rownum=1;
+ 
+ select * from(
+ select id_empleado, nombre, count(id_cliente) from (select  distinct e.id_empleado, e.nombre , e.apellidos , c.id_cliente from empleados e, pedidos p, clientes c
+where e.id_empleado=p.id_empleado and p.id_cliente=c.id_cliente)
+group by id_empleado, nombre
+ order by count(id_cliente) asc)
+ where rownum=1;
+  
+select id_cliente, nombre, apellidos,ciudad from clientes
+  where  id_cliente not in (
+    select id_cliente from pedidos
+      where numero_pedido in (
+        select numero_pedido from detalles_pedidos
+          where numero_producto in (
+            select numero_producto from productos
+              where id_categoria not in  (
+                select id_categoria from categorias 
+                  where descripcion='Bicicletas'))))
+                  
+                  
+select distinct cli.id_cliente ,cli.nombre, cli.ciudad from clientes cli, pedidos p, detalles_pedidos dp, productos pr, categorias cat
+  where cli.id_cliente=p.id_cliente and p.numero_pedido=dp.numero_pedido and dp.numero_producto=pr.numero_producto and pr.id_categoria=cat.id_categoria
+and cat.descripcion!='Bicicletas'
+    
+    
+    
+select id_empleado,nombre,apellidos from empleados
+  where id_empleado not in (
+    select id_empleado from pedidos
+      where id_cliente not in(
+        select id_cliente from clientes
+          where nombre like 'Samuel' and apellidos like 'Abadia'));
+        
+
+
+select e.id_empleado, e.nombre, sum(dp.precio*dp.cantidad) from empleados e, pedidos p, detalles_pedidos dp, productos pr, categorias cat
+where e.id_empleado=p.id_empleado and p.numero_pedido=dp.numero_pedido and dp.numero_producto=pr.numero_producto and pr.id_categoria=cat.id_categoria
+and (cat.descripcion='Accesorios' or (pr.nombre='StaDry Cycling culote'))
+group by e.id_empleado, e.nombre
+ 
+ select  e.id_empleado, e.nombre, sum(p.precio_total) from empleados e, pedidos p
+ where e.id_empleado=p.id_empleado
+ group by e.id_empleado, e.nombre
+ 
+ 
+ 
+ 
+ select tid.id_empleado from 
+( select id_empleado, count(*) as maximo from pedidos
+group by id_empleado
+order by maximo desc) tid,
+
+(select maximo from 
+(select id_empleado, count(*) as maximo from pedidos --verde
+group by id_empleado
+order by maximo desc)
+where rownum=1) tmax
+where tid.maximo=tmax.maximo
+ 
+

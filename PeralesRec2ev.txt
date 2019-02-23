@@ -1,0 +1,158 @@
+--1
+select d.num_dep, count(*) as total_dep from departamentos d, estudiantes e
+where d.num_dep=e.num_dep
+group by d.num_dep
+order by  d.num_dep
+
+ NUM_DEP  TOTAL_DEP
+---------- ----------
+         1          4 
+         2          4 
+         3          3 
+         4          4 
+         5          2 
+
+--2
+select e.num_estudiante,count(ex.num_estudiante) as examenes_realizados  from estudiantes e, examenes ex
+where e.num_estudiante=ex.num_estudiante and e.apellido like 'Martinez'
+group by e.num_estudiante
+
+NUM_ESTUDIANTE EXAMENES_REALIZADOS
+-------------- -------------------
+            14                   4 
+            17                   2 
+
+--3
+select distinct  dep.dept_nombre, count(asig.num_dep)as asignaturas_imparten from departamentos dep, asignaturas asig
+where dep.num_dep=asig.num_dep
+group by dep.dept_nombre
+having count(asig.num_dep)=(select max(count(asig.num_dep)) from departamentos dep, asignaturas asig
+  where dep.num_dep=asig.num_dep
+  group by dep.dept_nombre);
+
+DEPT_NOMBRE          ASIGNATURAS_IMPARTEN
+-------------------- --------------------
+Tecnologia  
+--4
+ select num_asig, count(*)as numero_aprobados from examenes
+  where nota>=50
+  group by num_asig
+  order by num_asig asc
+
+NUM_ASIG NUMERO_APROBADOS
+---------- ----------------
+         1                2 
+         2                4 
+         3                2 
+         4                1 
+         5                3 
+         6                4 
+         7                1 
+         8                2 
+         9                1 
+
+ 9 filas seleccionadas 
+
+
+--5
+select * from profesores
+  where sueldo <(
+    select avg(sueldo) from profesores )
+
+APELLIDO        NOMBRE            NUM_PROF    NUM_DEP   NUM_ASIG CATEGORIA     SUELDO FECHA_CONTRATO
+--------------- --------------- ---------- ---------- ---------- --------- ---------- --------------
+Jordan          Roberto                  1          1          9 E              24000 25/03/13       
+Salcedo         Teresa                   2          4          5 D              31800 30/09/11       
+Ramos           Sara                     5          2          2 C              40900 01/01/10       
+Fernandez       Gonzalo                  6          4          5 D              34210 28/03/90       
+Pereira         Alfonso                  7          6          7 D              32700 06/02/91       
+Gonzalez        Samuel                   8          5          6 D              27800 23/04/94       
+Perez           Luis                     9          1          9 C              36200 01/04/06       
+Gutierrez       Izarbe                  11          6          7 D              34300 01/09/09       
+Colmenar        Antonio                 12          4          5 C              39100 19/10/02       
+Torres          Eduardo                 15          3         10 E              23500 26/05/03       
+Torres          Eduardo                 16          3            E              23500 17/06/03       
+
+ 11 filas seleccionadas 
+
+--6
+select * from examenes
+where num_estudiante in (
+  select num_estudiante from estudiantes
+    where num_dep not in (
+      select num_dep from departamentos
+        where dept_nombre like 'Administrativo'))
+
+  NUM_ASIG NUM_ESTUDIANTE       NOTA FECHA  
+---------- -------------- ---------- --------
+         1              1         76 23/05/14 
+         9              1         42 20/05/14 
+         3              1         67 15/05/14 
+         2              2         52 05/06/14 
+         4              4         34 11/05/14 
+        10              4         49 26/06/14 
+         5              5         62 03/05/14 
+         5              6         70 17/05/14 
+         5              7         36 23/05/14 
+         6             11         73 08/06/14 
+         6              9         67 15/05/14 
+         6             10         82 05/06/14 
+         7             12         27 11/05/14 
+         8             12         56 11/05/14 
+         8             13         67 26/06/14 
+         7             13         63 03/05/14 
+         2             17         72 18/05/14 
+         4             17         80 02/06/14 
+
+ 18 filas seleccionadas 
+--7
+select num_estudiante , count(*) as examenes_aprobados from examenes 
+where nota>=50
+group by num_estudiante
+  having count(*) =(select max(count(*)) from examenes
+    group by num_estudiante);
+
+NUM_ESTUDIANTE EXAMENES_APROBADOS
+-------------- ------------------
+            14                  4 
+
+--8
+select num_dep, count(num_dep)as profesores_por_departamento from profesores
+  group by num_dep
+  having count(num_dep)>2
+  order by num_dep
+
+ NUM_DEP PROFESORES_POR_DEPARTAMENTO
+---------- ---------------------------
+         3                           3 
+         4                           3 
+         5                           3 
+         6                           3 
+
+--9
+create table excelentes as
+select * from examenes
+  where nota>=76;
+
+table EXCELENTES creado.
+
+comprobamos que ha salido correcto
+select * from excelentes
+ NUM_ASIG NUM_ESTUDIANTE       NOTA FECHA  
+---------- -------------- ---------- --------
+         1              1         76 23/05/14 
+         2              3         89 08/06/14 
+         6             10         82 05/06/14 
+         4             17         80 02/06/14 
+
+--10
+update examenes set nota=nota-4
+    where num_asig in (
+      select num_asig from profesores 
+        where num_dep in (
+          select num_dep from departamentos
+            where dept_nombre like 'Tecnologia'))
+
+2 filas actualizadas.
+
+

@@ -1,0 +1,177 @@
+javier perales bona
+--ejercicio 1
+
+create or replace function (p_id_cliente, anio date)
+is
+
+begin
+
+    select count(*)  from pedidos
+        where id_cliente =p_id_cliente and fecha_pedido=anio;
+ end;
+--ejercicio 2
+create or replace procedure ejercicio2ex (p_anio number)
+is 
+cursor cur_ejer2 is select extract(month from fecha_pedido) mes, sum(precio_total) total from pedidos
+    where extract (year from fecha_pedido)=p_anio
+    group by extract (month from fecha_pedido)
+    order by extract(month from fecha_pedido);
+    v_cur_ejer2 cur_ejer2%rowtype;
+begin
+    open cur_ejer2;
+  
+    for cont in 1..12 loop
+          fetch cur_ejer2 into v_cur_ejer2;
+          exit when cur_ejer2%notfound;
+          dbms_output.put_line('mes:' || v_cur_ejer2.mes ||'*****   ventas del mes' || v_cur_ejer2.total );
+    end loop;
+    close cur_ejer2;
+end;
+    
+
+execute ejercicio2ex(2008);
+--set serveroutput on;
+
+--ejercicio 3
+create or replace procedure ejer3ex ( p_fecha_pedido PEDIDOS.FECHA_PEDIDO%type, p_fecha_envio PEDIDOS.FECHA_ENVIO%type)
+is
+empleado_repetido exception;
+cliente_repetido exception;
+error_fecha exception;
+v_numero_pedido pedidos.numero_pedido%type;
+v_fecha_pedido PEDIDOS.FECHA_PEDIDO%type;
+v_fecha_envio PEDIDOS.FECHA_ENVIO%type;
+v_id_cliente pedidos.id_cliente%type;
+v_id_empleado pedidos.id_empleado%type;
+v_precio_total pedidos.precio_total%type;
+begin
+    select max(id_cliente) into v_id_cliente from pedidos;
+    select max(id_empleado) into v_id_empleado from pedidos;
+    select max(numero_pedido) into v_numero_pedido from pedidos;
+    select precio*cantidad into v_precio_total from detalles_pedidos;
+    
+    raise empleado_repetido;
+    raise cliente_repetido;
+    raise error_fecha;
+    exception
+        when no_data_found then
+        insert into pedidos values(v_numero_pedido,p_fecha_pedido,p_fecha_envio,v_id_cliente,v_id_empleado,v_precio_total);
+            when empleado_repetido or cliente_repetido then
+                 dbms_output.put_line('Error, cliente o empleado repetido');
+            when error_fecha then
+                dbms_output.put_line('Error');
+end;
+
+--ejercicio4
+
+
+--ejercicio4
+create or replace procedure ejer4ex
+is
+cursor c_ejer4ex is select p.numero_producto prod, p.nombre prod_nom, pr.id_prov prov, pr.nombre prov_nom, precio_por_mayor from
+productos p, productos_proveedores pp, proveedores pr
+where p.numero_producto=pp.numero_producto and pr.id_prov=pp.id_prov
+order by p.numero_producto , precio_por_mayor;
+
+cont number;
+v_ejer4ex   c_ejer4ex%rowtype;
+v_id_numero_producto number;
+
+begin
+cont:=0;
+open  c_ejer4ex;
+loop
+fetch  c_ejer4ex into v_ejer4ex;
+exit when  c_ejer4ex%notfound;
+dbms_output.put_line('listado de proveedores por articulo');
+    while cont!= v_id_numero_producto loop
+        dbms_output.put_line('articulo '|| v_ejer4ex.prod || '  '|| v_ejer4ex.prod_nom);
+        dbms_output.put_line(v_ejer4ex.prov ||'  '|| v_ejer4ex.prov_nom);
+        cont:=cont+1;
+        dbms_output.put_line('numero de proveedores' || cont);
+        fetch  c_ejer4ex into v_ejer4ex;
+    end loop;
+    close c_ejer4ex;
+    
+end loop;
+end ejer4ex;
+
+--ejercicio5
+create or replace trigger ejer5ex
+after update on pedidos
+for each row
+declare 
+v_precio_nuevo number:=0;
+v_precio_viejo number:=0;
+v_numero_pedido number:=0;
+begin
+   v_precio_nuevo:=:new.precio_total;
+   v_precio_viejo:=:old.precio_total;
+   v_numero_pedido:=:old.numero_pedido;
+   insert into auditoria values('pedido' || v_numero_pedido|| '**'|| 'precio total antiguo: '|| :old.precio_total||
+   '**'|| 'precio total nuevo: '|| :new.precio_total);
+end;
+
+create or replace procedure cambia_precio_ex(p_pedido pedidos.numero_pedido%type,
+p_importe pedidos.precio_total%type)
+as
+v_ped pedidos%rowtype;
+begin
+    select * into v_ped from pedidos where numero_pedido=p_pedido;
+    update pedidos set precio_total=p_importe;
+    dbms_output.put_line('** precio para cambiado para el pedido **'|| p_pedido);
+    exception
+    when no_data_found then
+        dbms_output.put_line('** no existe el pedido **'|| p_pedido);
+        end cambia_precio_ex;
+        execute cambia_precio_ex(1,10);
+--ejercicio 6
+--ejercicio6
+create or replace trigger ejer6ex
+before insert on detalles_pedidos
+for each row
+declare
+v_precio_total:=:new.precio_total;
+
+begin
+if inserting then
+update pedidos set precio_total=v_precio_total;
+end if;
+end;
+
+create or replace procedure gestiona_linea
+(p_pedido pedidos.numero_pedido%type,
+ p_prod productos.numero_producto%type,
+ p_importe detalles_pedidos.precio%type,
+ p_cantidad detalles_pedidos.cantidad%type)
+as
+v_ped pedidos%rowtype;
+v_prod productos%rowtype;
+v_det detalles_pedidos%rowtype;
+error_negativo exception;
+begin
+  if (p_cantidad <= 0 or p_importe <=0) then
+    raise error_negativo;
+  end if;
+  select * into v_ped from pedidos where numero_pedido=p_pedido;
+  begin
+    select * into v_prod from productos where numero_producto=p_prod;
+    begin
+      select * into v_det from detalles_pedidos where numero_producto=p_prod and numero_pedido=p_pedido;
+      DBMS_OUTPUT.PUT_LINE(' ** Ya existe una línea de ese producto en ese pedido **  '||p_prod||' pedido '||p_pedido);
+    exception
+      when no_data_found then
+        insert into detalles_pedidos values (p_pedido, p_prod, p_importe, p_cantidad);
+        DBMS_OUTPUT.PUT_LINE(' ** Registro insertado **  '||p_pedido);
+    end;  
+  exception
+    when no_data_found then
+      DBMS_OUTPUT.PUT_LINE(' ** No existe el artículo **  '||p_prod);
+  end;
+exception
+  when no_data_found then
+    DBMS_OUTPUT.PUT_LINE(' ** No existe el pedido **  '||p_pedido);
+  when error_negativo then
+    DBMS_OUTPUT.PUT_LINE('Importe o cantidad negativos '||p_importe||' '||p_cantidad);
+end gestiona_linea;
+execute gestiona_linea(1,2,50,80);

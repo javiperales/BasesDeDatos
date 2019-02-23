@@ -1,0 +1,12 @@
+CREATE USER examen1 IDENTIFIED BY examen
+DEFAULT TABLESPACE USERS 
+TEMPORARY TABLESPACE TEMP;
+
+grant connect to examen1;
+grant resource to examen1;
+
+grant CREATE MATERIALIZED VIEW to examen1;
+grant CREATE VIEW to examen1;
+
+grant CREATE PUBLIC SYNONYM to examen1;
+grant CREATE ROLE to examen1;

@@ -1,0 +1,9 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<OSDM_Design class="oracle.dbtools.crest.model.design.Design" name="examen2ev" id="C4E3EF7C-C5CE-9D7A-3D11-3714A74AC37E" version="3.5">
+<createdBy>javip</createdBy>
+<createdTime>2018-03-18 19:34:20 UTC</createdTime>
+<generatorID>Generado por el Usuario</generatorID>
+<ownerDesignName>examen2ev</ownerDesignName>
+<capitalNames>false</capitalNames>
+<designId>C4E3EF7C-C5CE-9D7A-3D11-3714A74AC37E</designId>
+</OSDM_Design>

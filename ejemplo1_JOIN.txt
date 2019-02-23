@@ -1,0 +1,16 @@
+create table animales(codigo number(10) primary key, nombre varchar2(25), tipo varchar2(20), propietario varchar2(9));
+create table propietarios (dni varchar2(9) primary key, nombre varchar2(25));
+insert into animales values (1, 'Cloncho' , 'gato' , '51993482Y');
+insert into animales values (2,'Yoda' , 'gato' , '51993482Y');
+insert into animales values (3,'Sprocket' , 'perro' , '37276317Z');
+insert into animales values (4,'Arco' , 'perro', 'NULL');
+
+insert into propietarios values ('51993482Y', 'Jose Perez');
+insert into propietarios values ('2883477X', 'Matias Fernandez');
+insert into propietarios values ('37276317Z', 'Francisco Martinez');
+
+select * from animales cross  join propietarios;
+select * from animales  join propietarios on animales.propietario = propietarios.dni;
+select * from animales left outer join propietarios on animales.propietario = propietarios.dni;
+select * from animales right outer join propietarios on animales.propietario = propietarios.dni; -- me sale diferente a la hoja
+select * from animales full outer join propietarios on animales.propietario = propietarios.dni;

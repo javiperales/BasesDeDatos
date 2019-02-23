@@ -1,0 +1,181 @@
+1-
+create table campañas_publicitarias (
+id_campañas number(3) constraint id_campañas_pk primary key,
+titulo varchar2(20),
+id_categoria number(38,0),
+descuento_adicional number(10,2) check (descuento_adicional in (0.0,1.0)),
+foreign key (id_categoria) references productos );
+
+table CAMPAÑAS_PUBLICITARIAS creado.
+
+2-
+select nombre from empleados
+  where id_empleado in (
+    select id_empleado from pedidos
+      where id_cliente in (
+        select id_cliente from clientes
+          where nombre not in (
+            select nombre from clientes
+              where nombre like 'Samuel' and apellidos like 'Abadia')));
+
+NOMBRE                  
+-------------------------
+Ana                       
+Maria                     
+Mateo                     
+Carol                     
+Pedro                     
+David                     
+Catalina                  
+Susana                    
+
+ 8 filas seleccionadas
+
+3-
+select nombre, ciudad from clientes
+  where id_cliente in (
+    select id_cliente from pedidos
+      where numero_pedido in (
+        select numero_pedido from detalles_pedidos
+          where numero_producto in (
+            select numero_producto from productos
+              where id_categoria not in  (
+                select id_categoria from categorias
+                  where descripcion like 'Bicilcletas'))));
+
+NOMBRE                    CIUDAD                       
+------------------------- ------------------------------
+Susana                    Robledo                        
+Guillermo                 Daganzo                        
+German                    Acebeda (La)                   
+Roberto                   Hontanar                       
+Daniel                    Robledo                        
+Juan                      Robledo                        
+Maria                     O Pereiro                      
+Nicolas                   Santa Ana                      
+Andres                    Somosierra                     
+Angel                     Ajofrin                        
+Ana                       Venturada                      
+Lisa                      Belmonte                       
+Raquel                    Santa Ana                      
+Samuel                    Plasencia                      
+Daniel                    Santa Ana                      
+Jaime                     Seiro                          
+Manuela                   Mundil                         
+David                     Fresnedoso                     
+Zacarias                  Garvin                         
+Joaquin                   Belmonte                       
+Estella                   Dosbarrios                     
+Camilo                    Ladrillar                      
+Julia                     Somosierra                     
+Marcos                    Escalonilla                    
+Maria                     Escalonilla                    
+Luis                      San Roman                      
+Lucas                     O Pereiro                      
+
+ 27 filas seleccionadas 
+
+4-
+select emple.id_empleado , emple.nombre , pe.precio_total from empleados emple , pedidos pe
+WHERE numero_pedido in (
+  select numero_pedido from detalles_pedidos
+    where numero_producto in (
+      select numero_producto from productos
+            where nombre like 'StaDry Cycling culote' and id_categoria in (
+              select id_categoria from categorias
+                where descripcion like 'Accesorios')));
+
+no se ha seleccionado ninguna fila
+
+  /*5*/
+select emple.id_empleado , emple.nombre , pe.precio_total from empleados emple , pedidos pe
+  where id_cliente =(select id_cliente , count(id_cliente) from pedidos)
+  group by id_cliente
+  order by count(id_cliente) desc
+
+/*6*/
+select emple.nombre , cli.cod_postal from empleados emple , clientes cli
+  where id_empleado in (
+    select id_empleado from pedidos
+      where numero_pedido in (
+        select numero_pedido from detalles_pedidos
+          where numero_producto in (
+            select numero_producto from productos
+              where precio_venta between  500 and 1900)))
+              group by emple.nombre , cli.cod_postal;
+
+NOMBRE                    COD_POSTAL
+------------------------- ----------
+Mateo                     10926      
+Mateo                     10263      
+Susana                    10209      
+Susana                    10926      
+Susana                    45201      
+Maria                     28837      
+Ana                       45284      
+David                     28006      
+David                     10263      
+David                     45201      
+Carol                     10263      
+Carol                     45201      
+Pedro                     28052      
+Catalina                  32501      
+Mateo                     45284      
+Mateo                     28837      
+Mateo                     10809      
+Susana                    45284      
+Susana                    10538      
+Susana                    28019      
+Maria                     28052      
+Maria                     45284  
+
+ 168 filas seleccionadas 
+
+/*7*/
+
+select * from (
+  select * from pedidos
+    where id_cliente in (
+      select id_cliente from clientes
+        where provincia like 'CACERES' or provincia like 'MADRID' and nombre like 'A%')
+        order by fecha_pedido desc)
+        where rownum<=10;
+
+NUMERO_PEDIDO FECHA_PEDIDO FECHA_ENVIO ID_CLIENTE ID_EMPLEADO PRECIO_TOTAL
+------------- ------------ ----------- ---------- ----------- ------------
+          937 2008-02-28   2008-03-03        1014         706       7500.5 
+          941 2008-02-28   2008-02-28        1019         702      7395.75 
+          938 2008-02-28   2008-02-28        1011         705      6463.54 
+          920 2008-02-26   2008-02-29        1008         708        36.15 
+          923 2008-02-26   2008-02-29        1009         707       1229.3 
+          921 2008-02-26   2008-02-26        1018         702         6582 
+          919 2008-02-25   2008-02-27        1014         707      7496.37 
+          910 2008-02-24   2008-02-27        1019         702      10665.9 
+          917 2008-02-24   2008-02-26        1013         703      5808.05 
+          914 2008-02-24   2008-02-24        1022         707           55 
+
+ 10 filas seleccionadas 
+
+/*8*/
+  select * from (
+  select    emple.id_empleado , emple.nombre , count(pe.id_cliente), pe.id_cliente  from empleados emple , pedidos pe
+  group by emple.id_empleado , emple.nombre, pe.id_cliente 
+  order by count(pe.id_cliente) asc)
+  where rownum<5;
+
+ID_EMPLEADO NOMBRE                    COUNT(PE.ID_CLIENTE) ID_CLIENTE
+----------- ------------------------- -------------------- ----------
+        704 Carol                                       20       1022 
+        708 Susana                                      20       1022 
+        703 Mateo                                       20       1022 
+        702 Maria                                       20       1022 
+
+/*9*/
+insert into pedidos_historico 
+select * from pedidos
+    where fecha_envio <'2008-01-01'
+
+589 filas insertadas.
+
+ delete from pedidos 
+  where fecha_envio<'2008-01-01'

@@ -1,0 +1,6 @@
+grant create session to administrador;
+
+CREATE USER prueba00 IDENTIFIED BY prueba00
+DEFAULT TABLESPACE USERS 
+TEMPORARY TABLESPACE TEMP
+QUOTA 500K on USERS;

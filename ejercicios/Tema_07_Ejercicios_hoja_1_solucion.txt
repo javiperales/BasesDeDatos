@@ -1,0 +1,350 @@
+/*IMPORTANTE HACER ESTO PORQUE LAS FECHAS ESTÁN EN FORMATO año mes dia*/
+alter session set nls_date_format='YYYY-MM-DD';
+
+/*1 Mostrar los nombres de todos nuestros representantes.*/
+
+SELECT nombre
+FROM representantes;
+
+/*2 Mostrar el nombre y el precio de cada uno de nuestros productos.*/
+
+SELECT nombre, precio_venta
+FROM productos;
+
+/*3 ¿De qué provincias son nuestros clientes?*/
+
+SELECT DISTINCT provincia
+FROM clientes;
+
+/*4 Mostrar toda la información de nuestros empleados.*/
+
+SELECT * FROM empleados;
+
+/*5 Muestra las ciudades de nuestros representantes en orden alfabético junto con los nombres de los representantes con los que trabajamos en cada ciudad.*/
+
+SELECT ciudad, nombre
+FROM representantes
+ORDER BY ciudad;
+
+/*6 Haz un listado de la página web de cada uno de nuestros representantes con el siguiente formato:
+No hay que mostrar los datos en caso de que no tengan página web.
+http://www.shinoman.com/ es la pag web de Shinoman, Incorporated*/
+
+SELECT pag_web || 'es la pag web de '|| nombre
+FROM representantes 
+WHERE pag_web IS NOT NULL;
+
+/*7 ¿Cuántos días cuesta el envío de cada pedido?*/
+
+SELECT numero_pedido, (fecha_envio-fecha_pedido)
+FROM pedidos;
+ 
+/*8 ¿Cuál es el valor de inventario de cada producto? */
+
+SELECT nombre, precio_venta * stock AS Valor_inventario
+FROM productos;
+
+/*9 Ajustar el precio de cada producto reduciéndolo un 5%.*/
+update productos set precio_venta=precio_venta*0.95;
+
+/*10 Mostrar la lista de los pedidos que han hecho nuestros clientes en orden descendente de fecha.
+Hay que ver los pedidos de cada cliente seguidos.*/
+select id_cliente, numero_pedido, fecha_pedido, fecha_envio, id_empleado, precio_total
+from pedidos
+order by id_cliente, fecha_pedido desc;
+
+/*11 Mostrar la lista de los nombres y direcciones de nuestros representantes ordenados alfabéticamente por el 
+nombre del representante.*/
+select nombre, direccion
+from representantes
+order by nombre;
+
+/*12 Mostrar el nombre y apellido de los clientes cuyo apellido sea "Sanz".*/
+
+SELECT nombre, apellidos
+FROM clientes
+WHERE apellidos = 'Sanz';
+
+/*13 ¿Cuáles son los nombres de los clientes que viven en la provincia de MADRID?*/
+
+select nombre
+from clientes
+where provincia like 'MADRID';
+ 
+/*14 Mostrar el nombre y apellido de los clientes que:*/
+
+/*viven en la provincia de MADRID */
+
+select nombre
+from clientes
+where provincia like 'MADRID';
+
+/*viven en Belmonte*/
+
+select nombre
+from clientes
+where ciudad like 'Belmonte';
+
+/*tienen como código postal 45915*/
+
+select nombre
+from clientes
+where cod_postal like '45915';
+
+/*que hicieron pedidos en Mayo*/
+
+select nombre
+from clientes, pedidos
+where clientes.id_cliente = pedidos.id_cliente and extract(month from fecha_pedido)=5;
+
+SELECT nombre,apellidos,fecha_pedido FROM clientes,pedidos
+WHERE fecha_pedido LIKE '____-05-__' AND clientes.id_cliente=pedidos.id_cliente;
+
+/*15 ¿Hay pedidos en los que la fecha de envío fue puesta accidentalmente 
+anterior a la fecha de pedido?*/
+
+SELECT numero_pedido
+FROM pedidos
+WHERE fecha_envio < fecha_pedido;
+
+--No existen errores con fechas de envio anteriores a fechas de pedido
+
+/*16 Mostrar el nombre y apellidos de los clientes cuyos apellidos empiezan por 'Pe'.*/
+
+SELECT nombre, apellidos
+FROM clientes
+WHERE apellidos LIKE 'Pe%';
+
+/*17 Mostrar el nombre y dirección de los representantes cuya dirección incluya
+la cadena 'del'*/
+
+SELECT nombre, direccion
+FROM representantes
+WHERE direccion LIKE '%del%';
+
+/*18 Listar el nombre y apellidos de los clientes que viven en Somosierra y cuyo apellido empieza con la letra ‘S’.*/
+
+SELECT nombre, apellidos
+FROM clientes
+WHERE ciudad = 'Somosierra'
+AND apellidos LIKE 'S%';
+
+/*19 Listar el nombre y apellidos de los clientes que viven en Somosierra o en 
+la provincia de ORENSE.*/
+
+SELECT nombre, apellidos
+FROM clientes
+WHERE ciudad = 'Somosierra' OR provincia = 'ORENSE';
+
+/*20 -Mostrar una lista de los nombres y número de teléfono de los representantes 
+de las provincias de MADRID y CACERES.*/
+
+SELECT nombre, telefono
+FROM representantes
+WHERE provincia = 'MADRID' OR provincia = 'CACERES';
+
+SELECT nombre, telefono
+FROM representantes
+WHERE provincia in ('MADRID','CACERES');
+
+/*21 Mostrar los datos de los pedidos del cliente 1001 en los que las fechas 
+de pedido y envio coincidan*/
+
+SELECT id_cliente, numero_pedido,fecha_pedido, fecha_envio
+FROM pedidos
+WHERE fecha_envio = fecha_pedido
+AND id_cliente = 1001;
+
+-- la siguiente consulta es mucho más eficiente porque primero filtra las filas del cliente 1001
+-- y luego las que tienen coincidencia en las fechas.
+
+SELECT id_cliente, numero_pedido,fecha_pedido, fecha_envio
+FROM pedidos
+WHERE id_cliente = 1001
+AND fecha_envio = fecha_pedido; /*/*/*/*/*/*/*/*/*/*/*/*/*/*
+
+/*22 Mostrar los datos de los pedidos del cliente 1001 o que cumplan que la 
+fecha de envío es 4 días posterior a la fecha de pedido.*/
+
+SELECT id_cliente, numero_pedido,fecha_pedido, fecha_envio
+FROM pedidos
+WHERE id_cliente=1001 OR fecha_envio=fecha_pedido+4;
+
+SELECT id_cliente, numero_pedido,fecha_pedido, fecha_envio
+FROM pedidos
+WHERE id_cliente = 1001 OR (fecha_envio-fecha_pedido)= 4;
+
+/*23 Mostrar nombre, apellidos, provincia y código postal de los clientes que 
+se apelliden Pelayo en la provincia de CACERES o de los clientes cuyo código 
+postal termine en 9.*/
+
+
+SELECT nombre, apellidos, provincia,cod_postal
+FROM clientes
+WHERE (apellidos = 'Pelayo' AND provincia = 'CACERES') OR cod_postal LIKE '%9';
+
+/*24 Mostrar nombre, apellidos, provincia y código postal de los clientes que se
+apelliden Pelayo y de cualquier otro cliente que viva en la provincia de CACERES
+o tenga un código postal que termine en 9.*/
+
+
+SELECT nombre, apellidos, provincia,cod_postal
+FROM clientes
+WHERE apellidos = 'Pelayo' OR (provincia = 'CACERES' OR cod_postal LIKE '%9');
+
+/*25 Mostrar los datos de los representantes que tienen su sede en CACERES, 
+ORENSE o MADRID.*/
+
+SELECT nombre, direccion, provincia
+FROM representantes
+WHERE provincia = 'CACERES' OR provincia = 'ORENSE' OR provincia = 'MADRID';
+
+ -- o también:
+
+SELECT nombre, direccion, provincia
+FROM representantes
+WHERE provincia IN( 'CACERES', 'ORENSE', 'MADRID');
+
+/*26 Listar los clientes cuyo apellido empieza por H*/
+
+SELECT nombre, apellidos
+FROM clientes
+WHERE apellidos LIKE 'H%';
+
+/*27 Listar los clientes que no viven en Robledo ni en Somosierra*/
+
+SELECT nombre FROM clientes
+WHERE NOT (ciudad LIKE 'Robledo' OR ciudad LIKE 'Somosierra');
+
+--o
+
+SELECT nombre, apellidos, ciudad
+FROM clientes
+WHERE ciudad NOT IN ('Robledo', 'Somosierra');
+
+/*28 Mostrar el numero de pedido, el id_cliente y la fecha de pedido de todos 
+los pedidos que ha realizado el cliente 1001 ordenado por fecha de pedido.*/
+
+SELECT numero_pedido, id_cliente, fecha_pedido
+FROM pedidos
+WHERE id_cliente = 1001 
+ORDER BY fecha_pedido;
+
+
+/*29 Mostrar un listado en orden alfabético de los nombres de productos que 
+empiezan por 'Dog'*/
+
+SELECT nombre
+FROM productos
+WHERE nombre LIKE 'Dog%' 
+ORDER BY nombre;
+
+/*30 Listar los nombres de todos los representantes con sede en Batres, 
+Belmonte, o Robledo.*/
+
+SELECT nombre, ciudad 
+FROM representantes
+WHERE ciudad LIKE 'Batres' OR ciudad LIKE 'Belmonte' OR ciudad LIKE 'Robledo';
+
+--o
+
+SELECT nombre, ciudad
+FROM representantes
+WHERE ciudad IN ('Batres', 'Belmonte', 'Robledo');
+
+
+/*31 Mostrar en orden alfabético la lista de los nombres de productos cuyo 
+precio de venta sea igual o superior a 125.00 euros.*/
+
+SELECT nombre, precio_venta
+FROM productos
+WHERE precio_venta >= 125
+ORDER BY nombre;
+
+/*32 Listar en orden alfabético los nombres de los representantes que no tienen 
+página web.*/
+
+SELECT nombre, pag_web
+FROM representantes
+WHERE pag_web IS NULL
+ORDER BY nombre;
+
+/*33 Listar los número de pedidos en los que se han pedido tanto bicicletas  
+(sabiendo que sus números de producto son 1, 2, 6 y 11) como cascos 
+(sabiendo que sus números de producto son 10, 25 y 26).*/
+
+SELECT DISTINCT numero_pedido
+FROM detalles_pedidos
+WHERE numero_producto IN (1, 2, 6, 11)
+INTERSECT
+SELECT DISTINCT numero_pedido
+FROM detalles_pedidos
+WHERE numero_producto IN (10, 25, 26);
+
+/*34) Diferencia: Listar los número de pedidos que han comprado alguna bicicleta (sabiendo que
+sus números de producto son 1, 2, 6 y 11) pero no cascos (sabiendo que sus números de
+producto son 10, 25 y 26).*/
+
+SELECT DISTINCT numero_pedido
+FROM detalles_pedidos
+WHERE numero_producto IN (1, 2, 6, 11)
+minus
+SELECT DISTINCT numero_pedido
+FROM detalles_pedidos
+WHERE numero_producto IN (10, 25, 26);
+
+/*35 Listar los número de pedidos que han comprado alguna bicicleta (sabiendo que sus
+números de producto son 1, 2, 6 y 11) o algún casco (sabiendo que sus números de
+producto son 10, 25 y 26).
+Hacerlo de dos maneras, haciendo uso de UNION y sin hacer uso de UNION.*/
+
+SELECT numero_pedido
+FROM detalles_pedidos
+WHERE numero_producto IN (1, 2, 6, 11)
+union
+SELECT numero_pedido
+FROM detalles_pedidos
+WHERE numero_producto IN (10, 25, 26);
+
+SELECT DISTINCT numero_pedido
+FROM detalles_pedidos
+WHERE numero_producto IN (1, 2, 6, 11, 10, 25, 26);
+
+/*36 Clientes y empleados que tienen el mismo nombre.*/
+
+select nombre
+from clientes
+intersect
+select nombre
+from empleados;
+
+--o
+
+select cl.nombre,e.nombre 
+from clientes cl, empleados e
+where cl.nombre=e.nombre;
+
+/*37 Clientes cuyos nombres no coinciden con los de ningún empleado.*/
+
+select nombre
+from clientes
+minus
+select nombre
+from empleados;
+
+select distinct nombre
+from clientes where nombre not in (select nombre from empleados);
+
+/*38  Ciudades en las que viven clientes pero no empleados*/
+
+select ciudad
+from clientes
+minus
+select ciudad
+from empleados;
+
+--o
+
+SELECT DISTINCT ciudad FROM clientes
+WHERE ciudad NOT IN
+  (SELECT ciudad FROM empleados);

@@ -1,0 +1,9 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<OSDM_Design class="oracle.dbtools.crest.model.design.Design" name="datamodelerexamen" id="BF06F259-9ADF-7083-CF39-945C27698E50" version="3.5">
+<createdBy>javip</createdBy>
+<createdTime>2018-03-17 15:34:47 UTC</createdTime>
+<generatorID>Generado por el Usuario</generatorID>
+<ownerDesignName>datamodelerexamen</ownerDesignName>
+<capitalNames>false</capitalNames>
+<designId>BF06F259-9ADF-7083-CF39-945C27698E50</designId>
+</OSDM_Design>

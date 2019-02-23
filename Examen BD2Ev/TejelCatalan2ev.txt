@@ -1,0 +1,191 @@
+--Ejercicio 1:
+Comando1-3:
+SELECT DISTINCT ALOJAMIENTO_SOLICITADO 
+FROM INQUILINOS;
+
+SOLUCIÓN:
+ALOJAMIENTO_SOLICITADO
+----------------------
+R
+P
+
+Comando2-3:
+SELECT count(*) AS GENTE_RESIDENCIA 
+FROM INQUILINOS 
+WHERE ALOJAMIENTO_SOLICITADO='R';
+
+SOLUCIÓN:
+GENTE_RESIDENCIA
+-----------------
+8
+
+Comando3-3:
+SELECT count(*) AS GENTE_PISO 
+FROM INQUILINOS 
+WHERE ALOJAMIENTO_SOLICITADO='P';
+
+SOLUCIÓN:
+GENTE_PISO
+----------
+12
+
+--Ejercicio 2:
+Comando:
+select distinct a.id_inquilino, i.nombre, h.nom_residencia 
+from alquileres a
+join inquilinos i on a.ID_INQUILINO=i.ID_INQUILINO
+join habitaciones h on a.id_habitacion=h.id_habitacion
+where a.ID_HABITACION<='HAB057' and i.ID_INQUILINO<='INQ003';
+
+Solución:
+ID_INQUIL NOMBRE                         NOM_RESIDENCIA     
+--------- ------------------------------ --------------------
+INQ002    Guillermo                      RES0001             
+INQ003    German                         RES0002 
+
+
+--Ejercicio 3:
+Comando:
+select e.nombre, e.cod_postal from empleados e
+join inspeccion_pisos ins on ins.id_empleado=e.id_empleado
+join pisos p on p.id_piso=ins.id_piso 
+where p.ciudad='Dubai';		       
+
+Solución:
+NOMBRE                         COD_P
+------------------------------ -----
+ANDRES                         28052
+MARIO                          45201
+
+--Ejercicio 5A:
+Comando:
+select count(INS.ID_PISO) AS TOTAL, E.ID_EMPLEADO,E.NOMBRE
+from INSPECCION_PISOS INS
+join EMPLEADOS E ON INS.ID_EMPLEADO=E.ID_EMPLEADO 
+group by E.ID_EMPLEADO, E.NOMBRE;
+
+Solución:
+TOTAL ID_EMPLEA NOMBRE                       
+---------- --------- ------------------------------
+         2 EMP02     MARIO                         
+         6 EMP01     ANDRES                        
+         1 EMP04     LUIS                          
+         2 EMP05     JAVIER 
+
+
+
+--Ejercicio 5B:
+Comando:
+select * from
+(select count(INS.ID_PISO)AS TOTAL, E.ID_EMPLEADO,E.NOMBRE
+from INSPECCION_PISOS INS
+join EMPLEADOS E ON INS.ID_EMPLEADO=E.ID_EMPLEADO 
+group by E.ID_EMPLEADO, E.NOMBRE
+order by TOTAL DESC)
+WHERE ROWNUM <=1;
+
+Solución:
+TOTAL ID_EMPLEA NOMBRE                       
+---------- --------- ------------------------------
+         6 EMP01     ANDRES  
+
+
+
+--Ejercicio 6:
+Comando:
+select r.ciudad, r.nom_residencia, h.num_hab 
+from residencias r
+join habitaciones h ON r.nom_residencia=h.nom_residencia;
+
+Solución:
+CIUDAD		NOM_RESIDENCIA		NUM_HAB
+--------------- -------------------- ----------
+Dubai		RES0001 		      1
+Dubai		RES0001 		      2
+Dubai		RES0001 		      3
+Dubai		RES0001 		      4
+Dubai		RES0001 		      5
+Dubai		RES0001 		      6
+Dubai		RES0001 		      7
+Dubai		RES0001 		      8
+Dubai		RES0001 		      9
+Dubai		RES0001 		     10
+Al Ain		RES0002 		      1
+
+CIUDAD		NOM_RESIDENCIA		NUM_HAB
+--------------- -------------------- ----------
+Al Ain		RES0002 		      2
+Al Ain		RES0002 		      3
+Al Ain		RES0002 		      4
+Al Ain		RES0002 		      5
+Al Ain		RES0002 		      6
+Al Ain		RES0002 		      7
+Al Ain		RES0002 		      8
+Al Ain		RES0002 		      9
+Al Ain		RES0002 		     10
+Al Ain		RES0002 		     11
+Al Ain		RES0002 		     12
+
+CIUDAD		NOM_RESIDENCIA		NUM_HAB
+--------------- -------------------- ----------
+Al Ain		RES0002 		     13
+Al Ain		RES0002 		     14
+Al Ain		RES0002 		     15
+Al Ain		RES0002 		     16
+Al Ain		RES0002 		     17
+Al Ain		RES0002 		     18
+Al Ain		RES0002 		     19
+Al Ain		RES0002 		     20
+Sharjah 	RES0003 		      1
+Sharjah 	RES0003 		      2
+Sharjah 	RES0003 		      3
+
+CIUDAD		NOM_RESIDENCIA		NUM_HAB
+--------------- -------------------- ----------
+Sharjah 	RES0003 		      4
+Sharjah 	RES0003 		      5
+Sharjah 	RES0003 		      6
+Sharjah 	RES0003 		      7
+Sharjah 	RES0003 		      8
+Sharjah 	RES0003 		      9
+Sharjah 	RES0003 		     10
+Sharjah 	RES0003 		     11
+Sharjah 	RES0003 		     12
+Sharjah 	RES0003 		     13
+Sharjah 	RES0003 		     14
+
+CIUDAD		NOM_RESIDENCIA		NUM_HAB
+--------------- -------------------- ----------
+Sharjah 	RES0003 		     15
+Al Hudaba	RES0004 		      1
+Al Hudaba	RES0004 		      2
+Al Hudaba	RES0004 		      3
+Al Hudaba	RES0004 		      4
+Al Hudaba	RES0004 		      5
+Al Hudaba	RES0004 		      6
+Al Hudaba	RES0004 		      7
+Al Hudaba	RES0004 		      8
+Al Hudaba	RES0004 		      9
+Al Hudaba	RES0004 		     10
+
+CIUDAD		NOM_RESIDENCIA		NUM_HAB
+--------------- -------------------- ----------
+Al Hudaba	RES0004 		     11
+Al Hudaba	RES0004 		     12
+
+57 rows selected.
+
+--Ejercicio9:
+Comando:
+SELECT * FROM
+(SELECT NOM_RESIDENCIA,max(num_hab) AS TOTAL 
+FROM HABITACIONES 
+WHERE nom_residencia LIKE 'RES%' 
+group by NOM_RESIDENCIA
+ORDER BY TOTAL DESC)
+WHERE ROWNUM<=1;
+
+Solución:
+NOM_RESIDENCIA            TOTAL
+-------------------- ----------
+RES0002                      20

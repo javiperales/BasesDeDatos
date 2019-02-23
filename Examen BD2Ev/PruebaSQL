@@ -1,0 +1,89 @@
+﻿--María Tejel y Rafael Luis Morquecho
+-- 1. Obtener el identificador de cliente y el número de pedidos realizados por cada cliente en el año 2007.
+
+SELECT PEDIDOS.ID_CLIENTE,COUNT(*) AS "NUMERO DE PEDIDOS"
+  FROM CLIENTES,  PEDIDOS
+   WHERE EXTRACT (YEAR FROM FECHA_PEDIDO) = '2007' 
+   AND CLIENTES.ID_CLIENTE = PEDIDOS.ID_CLIENTE
+    GROUP BY PEDIDOS.ID_CLIENTE;
+
+-- 2. Obtener el identificador, el nombre y la dirección del cliente que más pedidos ha realizado. 
+-- Puede haber varios clientes en esta situación, es decir, con el mismo número de pedidos.
+
+SELECT C.ID_CLIENTE, C.NOMBRE, C.DIRECCION, COUNT(*) AS TOTALPEDIDOS
+FROM CLIENTES C, PEDIDOS P
+WHERE C.ID_CLIENTE = P.ID_CLIENTE
+GROUP BY C.ID_CLIENTE, C.NOMBRE, C.DIRECCION
+HAVING COUNT(*) = (SELECT MAX( COUNT(*) )FROM PEDIDOS
+GROUP BY ID_CLIENTE);
+
+-- 3. Seleccionar el nombre y la cantidad recaudada de los 10 productos más vendidos.
+
+SELECT NOMBRE, TOTAL 
+FROM (SELECT NOMBRE,SUM(CANTIDAD* PRECIO) AS TOTAL 
+FROM PRODUCTOS
+JOIN DETALLES_PEDIDOS USING(NUMERO_PRODUCTO)
+GROUP BY NUMERO_PRODUCTO,NOMBRE )
+WHERE ROWNUM <=10;
+
+
+-- 4. Seleccionar el identificador de la categoría y 
+-- el número de producto del producto que más se ha vendido. Si hay empates, también se deben mostrar.
+
+
+SELECT P.NUMERO_PRODUCTO, P.ID_CATEGORIA ,"TOTAL VENDIDO"
+FROM ( SELECT DETALLES_PEDIDOS.NUMERO_PRODUCTO, COUNT(*) AS "TOTAL VENDIDO" 
+	FROM DETALLES_PEDIDOS,PRODUCTOS
+		WHERE DETALLES_PEDIDOS.NUMERO_PRODUCTO = PRODUCTOS.NUMERO_PRODUCTO
+		GROUP BY DETALLES_PEDIDOS.NUMERO_PRODUCTO
+			HAVING COUNT(*) = (SELECT MAX( COUNT(*) )FROM DETALLES_PEDIDOS
+GROUP BY DETALLES_PEDIDOS.NUMERO_PRODUCTO)
+) DP ,PRODUCTOS P 
+WHERE  DP.NUMERO_PRODUCTO = P.NUMERO_PRODUCTO;
+
+-- 5. Obtener el identificador de los clientes que han comprado productos de la categoría 1.
+
+SELECT ID_CLIENTE
+FROM CLIENTES
+WHERE ID_CLIENTE IN (
+    SELECT ID_CLIENTE
+    FROM PEDIDOS P
+    JOIN DETALLES_PEDIDOS DP 
+    ON  (DP.NUMERO_PEDIDO = P.NUMERO_PEDIDO)
+    JOIN PRODUCTOS PD
+    ON (DP.NUMERO_PRODUCTO=PD.NUMERO_PRODUCTO)
+    WHERE ID_CATEGORIA=1
+    GROUP BY (ID_CLIENTE))
+    ORDER BY ID_CLIENTE;
+
+-- 6. Obtener la fecha del primer pedido del cliente cuyo id_cliente es el 1003, la fecha de su último pedido 
+-- (el más reciente) y el número de días que han pasado entre ambos pedidos.
+
+SELECT MIN(FECHA_PEDIDO) AS FECHAPRIMERA ,
+MAX(FECHA_PEDIDO) AS FECHAULTIMA,
+(MAX(FECHA_PEDIDO) -MIN(FECHA_PEDIDO))  
+FROM PEDIDOS 
+WHERE ID_CLIENTE = 1003 ;
+
+-- 7. Obtener el nombre de la ciudad, provincia y código postal donde hay más clientes.
+
+SELECT PROVINCIA, CIUDAD, COD_POSTAL 
+FROM CLIENTES
+GROUP BY PROVINCIA, CIUDAD, COD_POSTAL
+HAVING COUNT(*) = (SELECT MAX(MASCLIENTES)
+FROM (SELECT COUNT(COD_POSTAL) AS MASCLIENTES 
+FROM CLIENTES 
+GROUP BY COD_POSTAL 
+));
+
+-- 8. Obtener el nombre de los empleados que no han atendido a Samuel Abadia.
+
+SELECT NOMBRE FROM EMPLEADOS
+MINUS
+SELECT  E.NOMBRE  FROM CLIENTES C
+JOIN PEDIDOS P
+ON (P.ID_CLIENTE=C.ID_CLIENTE )
+JOIN EMPLEADOS E
+ON (P.ID_EMPLEADO=E.ID_EMPLEADO 
+AND C.NOMBRE = 'Samuel' 
+AND C.APELLIDOS = 'Abadia');
